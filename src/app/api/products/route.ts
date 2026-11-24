@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { CATEGORY_ORDER } from "@/lib/categories";
 import { buildComparisonSummary, searchProducts } from "@/lib/compare";
 import { getCatalog } from "@/lib/scrapers";
 import { MarketId, ProductsApiResponse } from "@/lib/types";
@@ -19,12 +20,23 @@ export async function GET(request: NextRequest) {
 
     const catalog = await getCatalog(false);
 
-    const filtered = searchProducts(catalog.products, {
+    // Compute counts per category for current query & market (before category filter)
+    const baseMatches = searchProducts(catalog.products, {
       query,
       market: marketParam,
-      category,
+      category: "all",
       sort,
     });
+
+    const categoryCounts: Record<string, number> = {};
+    for (const p of baseMatches) {
+      categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+    }
+
+    const filtered =
+      category === "all"
+        ? baseMatches
+        : baseMatches.filter((p) => p.category === category);
 
     // Always build comparison across all 3 markets for the searched query
     const allMarketMatches = query.trim()
@@ -37,13 +49,19 @@ export async function GET(request: NextRequest) {
       : [];
 
     const comparison = buildComparisonSummary(query, allMarketMatches);
-    const categories = Array.from(new Set(catalog.products.map((p) => p.category))).sort((a, b) =>
-      a.localeCompare(b, "tr-TR")
-    );
+    const presentCategories = new Set(catalog.products.map((p) => p.category));
+    const orderedCategories = [
+      ...CATEGORY_ORDER.filter((c) => presentCategories.has(c)),
+      ...Array.from(presentCategories)
+        .filter((c) => !CATEGORY_ORDER.includes(c))
+        .sort((a, b) => a.localeCompare(b, "tr-TR")),
+    ];
 
     const payload: ProductsApiResponse = {
       products: filtered,
-      categories,
+      categories: orderedCategories,
+      categoryCounts,
+      totalCount: baseMatches.length,
       statuses: catalog.statuses,
       comparison,
       lastUpdated: catalog.lastUpdated,

@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { classifyCategory } from "../categories";
 import { Product } from "../types";
 
 const SOK_URLS = [
@@ -21,26 +22,7 @@ function parseTurkishPrice(text: string | number | undefined): number | null {
 }
 
 function guessCategory(title: string): string {
-  const t = title.toLocaleLowerCase("tr-TR");
-  if (/(tv|televizyon|telefon|tablet|airfryer|fritöz|süpürge|ütü|blender|çay makinesi|kahve makinesi|kulaklık|saat|fırın|mikrodalga|tost makinesi|kettle)/.test(t)) {
-    return "Elektronik & Küçük Ev Aletleri";
-  }
-  if (/(tava|tencere|bardak|tabak|çatal|bıçak|saklama kabı|termos|sürahi|çaydanlık|havlu|nevresim|yastık|battaniye)/.test(t)) {
-    return "Mutfak & Ev";
-  }
-  if (/(deterjan|yumuşatıcı|şampuan|sabun|tuvalet kağıdı|kağıt havlu|çamaşır suyu|bulaşık|diş macunu)/.test(t)) {
-    return "Temizlik & Kişisel Bakım";
-  }
-  if (/(süt|peynir|yoğurt|tereyağı|yumurta|zeytin|sucuk|salam|kaşar|ayran|bal|reçel)/.test(t)) {
-    return "Süt & Kahvaltılık";
-  }
-  if (/(çay|kahve|kola|meyve suyu|maden suyu|gazoz|içecek)/.test(t)) {
-    return "İçecek";
-  }
-  if (/(yağ|un|şeker|pirinç|bulgur|makarna|mercimek|salça|çikolata|bisküvi|cips|kuruyemiş)/.test(t)) {
-    return "Temel Gıda";
-  }
-  return "Haftanın Fırsatları";
+  return classifyCategory(title);
 }
 
 function extractFromJsonLd($: cheerio.CheerioAPI, fallbackUrl: string): Product[] {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Search, SlidersHorizontal, X, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Search, SlidersHorizontal, X, Sparkles, ChevronRight } from "lucide-react";
+import { CATEGORIES } from "@/lib/categories";
 import { MARKETS, MarketId, Product, ProductsApiResponse } from "@/lib/types";
 import { MarketStatusBar } from "./MarketStatusBar";
 import { ComparisonPanel } from "./ComparisonPanel";
@@ -91,6 +92,23 @@ export function MarketExplorer() {
 
   const cheapestId = data?.comparison?.cheapestProduct?.id;
 
+  const groupedByCategory = useMemo(() => {
+    if (!data || category !== "all" || debouncedQuery.trim()) return null;
+    const map = new Map<string, Product[]>();
+    for (const product of data.products) {
+      const list = map.get(product.category) || [];
+      list.push(product);
+      map.set(product.category, list);
+    }
+    return data.categories
+      .map((cat) => ({
+        category: cat,
+        emoji: CATEGORIES.find((c) => c.id === cat)?.emoji || "🛒",
+        items: map.get(cat) || [],
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [data, category, debouncedQuery]);
+
   return (
     <div className="mx-auto max-w-7xl px-2.5 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8">
       {/* Header & Hero Search */}
@@ -165,8 +183,70 @@ export function MarketExplorer() {
         </div>
       </header>
 
+      {/* Category Pill Strip: Hepsi + Kahvaltı, Akşam Yemeği, Temizlik, ... */}
+      <nav
+        aria-label="Kategoriler"
+        className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
+      >
+        <button
+          type="button"
+          onClick={() => setCategory("all")}
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
+            category === "all"
+              ? "border-indigo-600 bg-indigo-600 text-white shadow-xs"
+              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          <span>🛒</span>
+          <span>Hepsi</span>
+          {data && (
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                category === "all"
+                  ? "bg-white/20 text-white"
+                  : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {data.totalCount}
+            </span>
+          )}
+        </button>
+
+        {CATEGORIES.map((cat) => {
+          const count = data?.categoryCounts?.[cat.id] ?? 0;
+          const isActive = category === cat.id;
+
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setCategory(cat.id)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
+                isActive
+                  ? "border-indigo-600 bg-indigo-600 text-white shadow-xs"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              <span>{cat.emoji}</span>
+              <span>{cat.label}</span>
+              {data && (
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
       {/* Market Scrape Status Bar */}
-      <div className="mt-5">
+      <div className="mt-4">
         <MarketStatusBar
           statuses={data?.statuses || null}
           lastUpdated={data?.lastUpdated || null}
@@ -269,29 +349,71 @@ export function MarketExplorer() {
             ))}
           </div>
         ) : data && data.products.length > 0 ? (
-          <>
-            <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
-              <span>
-                <strong>{data.products.length}</strong> ürün listeleniyor
-              </span>
-              {query && (
-                <span>
-                  “<strong>{query}</strong>” için en ucuzdan sıralı
-                </span>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
-              {data.products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isCheapestOverall={Boolean(query.trim() && product.id === cheapestId)}
-                  isSelectedForCompare={compareItems.some((c) => c.id === product.id)}
-                  onToggleCompare={toggleCompare}
-                />
+          groupedByCategory ? (
+            <div className="space-y-8">
+              {groupedByCategory.map((group) => (
+                <section key={group.category}>
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{group.emoji}</span>
+                      <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                        {group.category}
+                      </h2>
+                      <span className="rounded-full bg-slate-200/70 px-2 py-0.5 text-[11px] font-bold text-slate-700">
+                        {group.items.length} ürün
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setCategory(group.category)}
+                      className="inline-flex items-center gap-0.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+                    >
+                      Tümü
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
+                    {group.items.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        isCheapestOverall={false}
+                        isSelectedForCompare={compareItems.some((c) => c.id === product.id)}
+                        onToggleCompare={toggleCompare}
+                      />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
-          </>
+          ) : (
+            <>
+              <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
+                <span>
+                  <strong>{data.products.length}</strong> ürün listeleniyor
+                  {category !== "all" ? ` • ${category}` : ""}
+                </span>
+                {query && (
+                  <span>
+                    “<strong>{query}</strong>” için en ucuzdan sıralı
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
+                {data.products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isCheapestOverall={Boolean(query.trim() && product.id === cheapestId)}
+                    isSelectedForCompare={compareItems.some((c) => c.id === product.id)}
+                    onToggleCompare={toggleCompare}
+                  />
+                ))}
+              </div>
+            </>
+          )
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
             <p className="text-base font-bold text-slate-800">

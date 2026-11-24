@@ -93,6 +93,8 @@ export interface ComparisonSummary {
 export interface ProductsApiResponse {
   products: Product[];
   categories: string[];
+  categoryCounts: Record<string, number>;
+  totalCount: number;
   statuses: Record<MarketId, MarketScrapeStatus>;
   comparison: ComparisonSummary | null;
   lastUpdated: string;
