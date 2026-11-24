@@ -92,7 +92,7 @@ export function MarketExplorer() {
   const cheapestId = data?.comparison?.cheapestProduct?.id;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-2.5 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-8">
       {/* Header & Hero Search */}
       <header className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-6 text-white shadow-lg sm:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -280,7 +280,7 @@ export function MarketExplorer() {
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
               {data.products.map((product) => (
                 <ProductCard
                   key={product.id}

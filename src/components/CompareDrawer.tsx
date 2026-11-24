@@ -81,7 +81,7 @@ export function CompareDrawer({
               </button>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-4">
               {[...items]
                 .sort((a, b) => a.price - b.price)
                 .map((item) => {
@@ -92,37 +92,37 @@ export function CompareDrawer({
                   return (
                     <div
                       key={item.id}
-                      className={`relative rounded-xl border p-4 ${
+                      className={`relative min-w-0 rounded-xl border p-2 sm:p-4 ${
                         isBest
-                          ? "border-emerald-400 bg-emerald-50/40 ring-2 ring-emerald-100"
+                          ? "border-emerald-400 bg-emerald-50/40 ring-1 sm:ring-2 ring-emerald-100"
                           : "border-slate-200 bg-white"
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => onRemove(item.id)}
-                        className="absolute right-2.5 top-2.5 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                        className="absolute right-1.5 top-1.5 sm:right-2.5 sm:top-2.5 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
                         title="Listeden çıkar"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </button>
 
                       <span
-                        className={`inline-flex rounded-lg px-2.5 py-0.5 text-xs font-extrabold text-white ${meta.bgClass}`}
+                        className={`inline-flex rounded-md sm:rounded-lg px-1.5 py-0.5 sm:px-2.5 text-[10px] sm:text-xs font-extrabold text-white ${meta.bgClass}`}
                       >
                         {meta.name}
                       </span>
 
-                      <h3 className="mt-2.5 pr-6 text-sm font-bold text-slate-900">
+                      <h3 className="mt-2 pr-5 text-[11px] sm:text-sm font-bold leading-snug text-slate-900 line-clamp-2">
                         {item.title}
                       </h3>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {item.category} {item.unit ? `• ${item.unit}` : ""}
+                      <p className="mt-0.5 text-[10px] sm:text-xs text-slate-500 truncate">
+                        {item.unit || item.category}
                       </p>
 
-                      <div className="mt-4 flex items-baseline gap-2">
+                      <div className="mt-2.5 sm:mt-4 flex items-baseline gap-1">
                         <span
-                          className={`text-2xl font-extrabold ${
+                          className={`text-sm sm:text-2xl font-extrabold ${
                             isBest ? "text-emerald-700" : "text-slate-900"
                           }`}
                         >
@@ -130,15 +130,15 @@ export function CompareDrawer({
                         </span>
                       </div>
 
-                      <div className="mt-2">
+                      <div className="mt-1.5 sm:mt-2">
                         {isBest ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-                            <Trophy className="h-3 w-3" />
-                            En Uygun Seçenek
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 sm:px-2.5 text-[9px] sm:text-xs font-bold text-emerald-800">
+                            <Trophy className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                            En Ucuz
                           </span>
                         ) : (
-                          <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700">
-                            +{formatTL(diff)} daha pahalı
+                          <span className="inline-block rounded-full bg-rose-50 px-1.5 py-0.5 sm:px-2.5 text-[9px] sm:text-xs font-semibold text-rose-700">
+                            +{formatTL(diff)}
                           </span>
                         )}
                       </div>

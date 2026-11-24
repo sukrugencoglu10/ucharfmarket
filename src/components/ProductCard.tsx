@@ -22,30 +22,30 @@ export function ProductCard({
 
   return (
     <article
-      className={`group flex flex-col justify-between rounded-2xl border bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md ${
+      className={`group flex flex-col justify-between rounded-2xl border bg-white p-2.5 sm:p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md ${
         isCheapestOverall ? "border-emerald-300 ring-1 ring-emerald-200" : "border-slate-200"
       }`}
     >
       <div>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
           <span
-            className={`inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-extrabold text-white ${meta.bgClass}`}
+            className={`inline-flex items-center rounded-lg px-2 py-0.5 sm:px-2.5 text-[10px] sm:text-xs font-extrabold text-white ${meta.bgClass}`}
           >
             {meta.name}
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {discount && (
-              <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">
-                %{discount} İndirim
+              <span className="rounded-full bg-rose-100 px-1.5 py-0.5 sm:px-2 text-[10px] sm:text-[11px] font-bold text-rose-700">
+                %{discount}
               </span>
             )}
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+            <span className="hidden sm:inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
               {product.category}
             </span>
           </div>
         </div>
 
-        <div className="mt-3 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-slate-50 border border-slate-100">
+        <div className="mt-2 sm:mt-3 flex h-24 sm:h-36 items-center justify-center overflow-hidden rounded-xl bg-slate-50 border border-slate-100">
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
